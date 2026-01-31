@@ -1,5 +1,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { MotionProvider } from "@/lib/providers/MotionProvider";
+import { CustomCursor } from "@/components/motion/CustomCursor";
+import { Preloader } from "@/components/motion/Preloader";
+import { PageTransition } from "@/components/motion/PageTransition";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,7 +26,13 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <Preloader />
+        <MotionProvider>
+          <CustomCursor />
+          <PageTransition>
+            {children}
+          </PageTransition>
+        </MotionProvider>
       </body>
     </html>
   );

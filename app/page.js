@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Reveal } from "@/components/motion/Reveal";
+import { MagneticButton } from "@/components/motion/MagneticButton";
+import { ScrollIndicator } from "@/components/motion/ScrollIndicator";
 import {
   Card,
   CardContent,
@@ -11,12 +15,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Heart, Sparkles, Zap } from "lucide-react";
+import { Heart, Sparkles, Zap, ArrowRight } from "lucide-react";
 
 export default function Home() {
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Parallax scroll effects
+  const { scrollYProgress } = useScroll();
+  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.8, 0.5]);
+  const scrollIndicatorOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -53,10 +65,42 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-indigo-50/30 to-purple-50 dark:from-gray-900 dark:via-indigo-950/20 dark:to-gray-900">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]"></div>
+      {/* Background Pattern with Parallax */}
+      <motion.div
+        className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]"
+        style={{ y: backgroundY }}
+      ></motion.div>
 
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
+      <motion.div
+        className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-16 sm:px-6 lg:px-8"
+        style={{ opacity }}
+      >
+        {/* Floating Decorative Elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[...Array(6)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute text-rose-300/10 dark:text-rose-500/10"
+              style={{
+                left: `${15 + i * 15}%`,
+                top: `${20 + (i % 3) * 25}%`,
+              }}
+              animate={{
+                y: [-30, 30, -30],
+                rotate: [0, 10, -10, 0],
+                scale: [1, 1.1, 1],
+              }}
+              transition={{
+                duration: 4 + i * 0.5,
+                repeat: Infinity,
+                delay: i * 0.3,
+              }}
+            >
+              <Heart className="h-12 w-12 sm:h-16 sm:w-16" fill="currentColor" />
+            </motion.div>
+          ))}
+        </div>
+
         <motion.div
           className="w-full max-w-4xl"
           variants={containerVariants}
@@ -74,11 +118,20 @@ export default function Home() {
             </div>
           </motion.div>
 
+          {/* Explore Moments Link */}
+          <Reveal delay={0.15} className="mb-6 flex justify-center">
+            <Link
+              href="/moments"
+              className="group inline-flex items-center gap-2 rounded-full border border-indigo-200/50 bg-white/60 px-5 py-2.5 text-sm font-medium text-indigo-700 shadow-sm backdrop-blur-sm transition-all hover:bg-white/80 hover:shadow-md dark:border-indigo-800/50 dark:bg-gray-900/60 dark:text-indigo-300 dark:hover:bg-gray-900/80"
+            >
+              <Sparkles className="h-4 w-4" />
+              <span>Explore Moments Templates</span>
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </Reveal>
+
           {/* Hero Section */}
-          <motion.div
-            variants={itemVariants}
-            className="mb-12 text-center"
-          >
+          <Reveal delay={0.2} className="mb-12 text-center">
             <h1 className="mb-6 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl lg:text-7xl dark:text-white">
               Stop sending boring texts.
               <br />
@@ -93,7 +146,7 @@ export default function Home() {
               </span>
               .
             </p>
-          </motion.div>
+          </Reveal>
 
           {/* Waitlist Form */}
           <motion.div variants={itemVariants} className="mb-16">
@@ -110,13 +163,14 @@ export default function Home() {
                   required
                   className="h-12 flex-1 border-gray-300 bg-white/90 text-base shadow-sm backdrop-blur-sm focus:border-rose-500 focus:ring-rose-500 dark:border-gray-700 dark:bg-gray-900/90"
                 />
-                <Button
+                <MagneticButton
                   type="submit"
                   disabled={isLoading}
                   className="h-12 bg-gradient-to-r from-rose-500 to-rose-600 px-8 text-base font-semibold text-white shadow-lg transition-all hover:from-rose-600 hover:to-rose-700 hover:shadow-xl disabled:opacity-50 sm:flex-shrink-0"
+                  strength={0.4}
                 >
                   {isLoading ? "Joining..." : "Join the Waitlist"}
-                </Button>
+                </MagneticButton>
               </form>
             ) : (
               <motion.div
@@ -145,47 +199,58 @@ export default function Home() {
             variants={itemVariants}
             className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
           >
-            <Card className="group border-gray-200 bg-white/80 backdrop-blur-sm transition-all hover:border-rose-300 hover:shadow-lg dark:border-gray-800 dark:bg-gray-900/80 dark:hover:border-rose-800">
-              <CardHeader>
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-rose-100 to-rose-200 dark:from-rose-900/50 dark:to-rose-800/50">
-                  <Heart className="h-6 w-6 text-rose-600 dark:text-rose-400" />
-                </div>
-                <CardTitle className="text-xl">Interactive Invites</CardTitle>
-                <CardDescription className="text-base">
-                  Create beautiful, personalized date invitations that your
-                  partner will actually want to say yes to.
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            <Reveal delay={0.4}>
+              <Card className="group border-gray-200 bg-white/80 backdrop-blur-sm transition-all hover:border-rose-300 hover:shadow-lg dark:border-gray-800 dark:bg-gray-900/80 dark:hover:border-rose-800">
+                <CardHeader>
+                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-rose-100 to-rose-200 dark:from-rose-900/50 dark:to-rose-800/50">
+                    <Heart className="h-6 w-6 text-rose-600 dark:text-rose-400" />
+                  </div>
+                  <CardTitle className="text-xl">Interactive Invites</CardTitle>
+                  <CardDescription className="text-base">
+                    Create beautiful, personalized date invitations that your
+                    partner will actually want to say yes to.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Reveal>
 
-            <Card className="group border-gray-200 bg-white/80 backdrop-blur-sm transition-all hover:border-indigo-300 hover:shadow-lg dark:border-gray-800 dark:bg-gray-900/80 dark:hover:border-indigo-800">
-              <CardHeader>
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-100 to-indigo-200 dark:from-indigo-900/50 dark:to-indigo-800/50">
-                  <Sparkles className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-                </div>
-                <CardTitle className="text-xl">AI-Powered Personalization</CardTitle>
-                <CardDescription className="text-base">
-                  Let AI help you craft the perfect message and suggest creative
-                  ideas tailored to your relationship.
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            <Reveal delay={0.5}>
+              <Card className="group border-gray-200 bg-white/80 backdrop-blur-sm transition-all hover:border-indigo-300 hover:shadow-lg dark:border-gray-800 dark:bg-gray-900/80 dark:hover:border-indigo-800">
+                <CardHeader>
+                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-100 to-indigo-200 dark:from-indigo-900/50 dark:to-indigo-800/50">
+                    <Sparkles className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <CardTitle className="text-xl">AI-Powered Personalization</CardTitle>
+                  <CardDescription className="text-base">
+                    Let AI help you craft the perfect message and suggest creative
+                    ideas tailored to your relationship.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Reveal>
 
-            <Card className="group border-gray-200 bg-white/80 backdrop-blur-sm transition-all hover:border-purple-300 hover:shadow-lg dark:border-gray-800 dark:bg-gray-900/80 dark:hover:border-purple-800 sm:col-span-2 lg:col-span-1">
-              <CardHeader>
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/50 dark:to-purple-800/50">
-                  <Zap className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                </div>
-                <CardTitle className="text-xl">Instant Delivery</CardTitle>
-                <CardDescription className="text-base">
-                  Send your invites and digital gifts instantly. No waiting, no
-                  hassle—just pure romantic magic.
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            <Reveal delay={0.6}>
+              <Card className="group border-gray-200 bg-white/80 backdrop-blur-sm transition-all hover:border-purple-300 hover:shadow-lg dark:border-gray-800 dark:bg-gray-900/80 dark:hover:border-purple-800 sm:col-span-2 lg:col-span-1">
+                <CardHeader>
+                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/50 dark:to-purple-800/50">
+                    <Zap className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <CardTitle className="text-xl">Instant Delivery</CardTitle>
+                  <CardDescription className="text-base">
+                    Send your invites and digital gifts instantly. No waiting, no
+                    hassle—just pure romantic magic.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Reveal>
           </motion.div>
         </motion.div>
-      </div>
+
+        {/* Scroll Indicator */}
+        <motion.div style={{ opacity: scrollIndicatorOpacity }}>
+          <ScrollIndicator />
+        </motion.div>
+      </motion.div>
     </div>
   );
 }
