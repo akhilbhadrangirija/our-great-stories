@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { MotionProvider } from "@/lib/providers/MotionProvider";
+import { ThemeProvider } from "@/components/theme-provider";
 import { CustomCursor } from "@/components/motion/CustomCursor";
 import { Preloader } from "@/components/motion/Preloader";
 import { PageTransition } from "@/components/motion/PageTransition";
@@ -27,12 +28,19 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Preloader />
-        <MotionProvider>
-          <CustomCursor />
-          <PageTransition>
-            {children}
-          </PageTransition>
-        </MotionProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <MotionProvider>
+            <CustomCursor />
+            <PageTransition>
+              {children}
+            </PageTransition>
+          </MotionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
