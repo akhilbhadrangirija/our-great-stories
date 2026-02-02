@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// Wedding Product
+model Wedding {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  coupleNames   String
+  date          DateTime
+  venueName     String
+  venueAddress  String
+  mapUrl        String?
+  story         String?
+  guests        Guest[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Guest {
+  id        String   @id @default(cuid())
+  weddingId String
+  wedding   Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  name      String
+  email     String?
+  status    String   @default("PENDING") // ACCEPTED, DECLINED, PENDING
+  meal      String?
+  dietary   String?
+  plusOne   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Dating Product
+model DateInvite {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  senderName   String
+  theme        String   // ROMANTIC, PLAYFUL, STRAIGHTFORWARD
+  questionText String
+  responses    DateResponse[]
+  createdAt    DateTime @default(now())
+}
+
+model DateResponse {
+  id        String   @id @default(cuid())
+  inviteId  String
+  invite    DateInvite @relation(fields: [inviteId], references: [id], onDelete: Cascade)
+  response  String   // YES
+  message   String?
+  timestamp DateTime @default(now())
+}

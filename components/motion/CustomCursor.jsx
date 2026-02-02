@@ -58,7 +58,8 @@ export function CustomCursor() {
         }, [cursorX, cursorY, shouldReduceMotion]);
 
         // Don't render on touch devices or if reduced motion
-        if ('ontouchstart' in window || shouldReduceMotion) {
+        const isTouch = typeof window !== 'undefined' && 'ontouchstart' in window;
+        if (isTouch || shouldReduceMotion) {
                 return null;
         }
 

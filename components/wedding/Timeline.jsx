@@ -5,38 +5,7 @@ import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
-const mockTimelineData = [
-        {
-                id: 1,
-                date: 'June 2021',
-                title: 'First Coffee',
-                description: 'Where it all started. A nervous coffee date that turned into a 4-hour conversation.',
-                image: 'https://placehold.co/600x400/e2e8f0/475569?text=First+Coffee',
-        },
-        {
-                id: 2,
-                date: 'December 2021',
-                title: 'The "Yes" to Adventure',
-                description: 'First road trip together. We got lost, found a hidden beach, and realized we made a great team.',
-                image: 'https://placehold.co/600x400/e2e8f0/475569?text=Road+Trip',
-        },
-        {
-                id: 3,
-                date: 'August 2022',
-                title: 'Moving In',
-                description: 'Combining books, plants, and lives. Our first apartment felt like home immediately.',
-                image: 'https://placehold.co/600x400/e2e8f0/475569?text=Moving+In',
-        },
-        {
-                id: 4,
-                date: 'February 2023',
-                title: 'The Proposal',
-                description: 'Under the northern lights (or at least a very nice starry night). A simple question, an easy answer.',
-                image: 'https://placehold.co/600x400/e2e8f0/475569?text=Proposal',
-        },
-];
-
-const TimelineItem = ({ item, index }) => {
+const TimelineItem = ({ title, date, description, image, index }) => {
         const ref = useRef(null);
         const { scrollYProgress } = useScroll({
                 target: ref,
@@ -59,11 +28,11 @@ const TimelineItem = ({ item, index }) => {
                         {/* Content Side */}
                         <div className="w-[45%] flex flex-col justify-center px-8">
                                 <span className="text-sm font-medium text-muted-foreground mb-2 block font-serif tracking-widest uppercase">
-                                        {item.date}
+                                        {date}
                                 </span>
-                                <h3 className="text-3xl font-bold mb-4 font-serif">{item.title}</h3>
-                                <p className="text-muted-foreground leading-relaxed">
-                                        {item.description}
+                                <h3 className="text-3xl font-bold mb-4 font-serif">{title}</h3>
+                                <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                                        {description}
                                 </p>
                         </div>
 
@@ -75,19 +44,26 @@ const TimelineItem = ({ item, index }) => {
                         {/* Image Side */}
                         <div className="w-[45%] px-8">
                                 <div className="relative aspect-[3/2] rounded-lg overflow-hidden grayscale hover:grayscale-0 transition-all duration-700 shadow-xl">
-                                        <Image
-                                                src={item.image}
-                                                alt={item.title}
-                                                fill
-                                                className="object-cover"
-                                        />
+                                        {image && (
+                                                <Image
+                                                        src={image}
+                                                        alt={title}
+                                                        fill
+                                                        className="object-cover"
+                                                />
+                                        )}
+                                        {!image && (
+                                                <div className="w-full h-full bg-muted flex items-center justify-center">
+                                                        <span className="text-muted-foreground italic">Cinematic Moment</span>
+                                                </div>
+                                        )}
                                 </div>
                         </div>
                 </motion.div>
         );
 };
 
-export default function Timeline() {
+export default function Timeline({ story, date }) {
         const containerRef = useRef(null);
         const { scrollYProgress } = useScroll({
                 target: containerRef,
@@ -99,6 +75,25 @@ export default function Timeline() {
                 damping: 30,
                 restDelta: 0.001
         });
+
+        const formattedDate = date ? new Date(date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'Future';
+
+        const timelineData = [
+                {
+                        id: 1,
+                        title: "The Beginning",
+                        date: "Once upon a time",
+                        description: story || "Every great love story starts with a simple hello.",
+                        image: "https://placehold.co/600x400/e2e8f0/475569?text=Our+Story"
+                },
+                {
+                        id: 2,
+                        title: "The Big Day",
+                        date: formattedDate,
+                        description: "We can't wait to celebrate this new chapter with you.",
+                        image: "https://placehold.co/600x400/e2e8f0/475569?text=The+Big+Day"
+                }
+        ];
 
         return (
                 <section ref={containerRef} className="relative max-w-7xl mx-auto py-24 overflow-hidden">
@@ -112,8 +107,15 @@ export default function Timeline() {
                         </div>
 
                         <div className="relative z-10">
-                                {mockTimelineData.map((item, index) => (
-                                        <TimelineItem key={item.id} item={item} index={index} />
+                                {timelineData.map((item, index) => (
+                                        <TimelineItem
+                                                key={item.id}
+                                                index={index}
+                                                title={item.title}
+                                                date={item.date}
+                                                description={item.description}
+                                                image={item.image}
+                                        />
                                 ))}
                         </div>
                 </section>

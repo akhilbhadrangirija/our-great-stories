@@ -9,8 +9,9 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { submitRSVP } from '@/app/actions/rsvp';
 
-export default function RSVPForm() {
+export default function RSVPForm({ weddingId }) {
         const [step, setStep] = useState(1);
         const [loading, setLoading] = useState(false);
         const [formData, setFormData] = useState({
@@ -18,7 +19,7 @@ export default function RSVPForm() {
                 email: '',
                 attending: 'yes',
                 diet: '',
-                song: ''
+                meal: ''
         });
 
         const nextStep = (e) => {
@@ -29,10 +30,22 @@ export default function RSVPForm() {
         const submit = async (e) => {
                 e.preventDefault();
                 setLoading(true);
-                // Simulate API call
-                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                const data = new FormData();
+                data.append('name', formData.name);
+                data.append('email', formData.email);
+                data.append('attending', formData.attending);
+                data.append('diet', formData.diet);
+                data.append('meal', formData.meal);
+
+                const result = await submitRSVP(weddingId, data);
+
                 setLoading(false);
-                setStep(4);
+                if (result.success) {
+                        setStep(4);
+                } else {
+                        alert('Error submitting RSVP');
+                }
         };
 
         const variants = {
@@ -179,12 +192,12 @@ export default function RSVPForm() {
                                                                                                         />
                                                                                                 </div>
                                                                                                 <div className="space-y-2">
-                                                                                                        <Label htmlFor="song">Song Request</Label>
-                                                                                                        <Textarea
-                                                                                                                id="song"
-                                                                                                                value={formData.song}
-                                                                                                                onChange={e => setFormData({ ...formData, song: e.target.value })}
-                                                                                                                placeholder="What will get you on the dance floor?"
+                                                                                                        <Label htmlFor="meal">Meal Preference</Label>
+                                                                                                        <Input
+                                                                                                                id="meal"
+                                                                                                                value={formData.meal}
+                                                                                                                onChange={e => setFormData({ ...formData, meal: e.target.value })}
+                                                                                                                placeholder="Chicken, Beef, Vegetarian..."
                                                                                                         />
                                                                                                 </div>
                                                                                         </>
@@ -235,7 +248,7 @@ export default function RSVPForm() {
                                                                                                 email: '',
                                                                                                 attending: 'yes',
                                                                                                 diet: '',
-                                                                                                song: ''
+                                                                                                meal: ''
                                                                                         });
                                                                                 }}>
                                                                                         Submit Another Response
