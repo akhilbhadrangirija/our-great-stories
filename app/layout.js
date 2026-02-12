@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Playfair_Display, Lato, Cinzel, Inter, Cormorant_Garamond, Montserrat, Oswald, Roboto, Abril_Fatface, Courier_Prime } from "next/font/google";
 import "./globals.css";
 import { MotionProvider } from "@/lib/providers/MotionProvider";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -16,6 +16,18 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Wedding Theme Fonts
+const playfair = Playfair_Display({ variable: "--font-playfair", subsets: ["latin"] });
+const lato = Lato({ variable: "--font-lato", weight: ["400", "700"], subsets: ["latin"] });
+const cinzel = Cinzel({ variable: "--font-cinzel", subsets: ["latin"] });
+const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
+const cormorant = Cormorant_Garamond({ variable: "--font-cormorant", weight: ["400", "600"], subsets: ["latin"] });
+const montserrat = Montserrat({ variable: "--font-montserrat", subsets: ["latin"] });
+const oswald = Oswald({ variable: "--font-oswald", subsets: ["latin"] });
+const roboto = Roboto({ variable: "--font-roboto", weight: ["400", "700"], subsets: ["latin"] });
+const abril = Abril_Fatface({ variable: "--font-abril", weight: ["400"], subsets: ["latin"] });
+const courier = Courier_Prime({ variable: "--font-courier", weight: ["400", "700"], subsets: ["latin"] });
+
 export const metadata = {
   title: "OurGreatStory - Interactive Date Invites & Digital Gifts",
   description: "Stop sending boring texts. Start sending stories. Create playful, interactive digital date invites and virtual gifts for your partner.",
@@ -25,7 +37,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${lato.variable} ${cinzel.variable} ${inter.variable} ${cormorant.variable} ${montserrat.variable} ${oswald.variable} ${roboto.variable} ${abril.variable} ${courier.variable} antialiased`}
       >
         <Preloader />
         <ThemeProvider

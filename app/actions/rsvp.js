@@ -7,8 +7,11 @@ export async function submitRSVP(weddingId, formData) {
         const name = formData.get('name');
         const email = formData.get('email');
         const attending = formData.get('attending'); // 'yes' or 'no'
+        const guestCount = parseInt(formData.get('guestCount') || "1");
+        const meal = formData.get('meal');
         const diet = formData.get('diet');
-        const meal = formData.get('meal'); // Not in current form but good to have
+        const songRequest = formData.get('songRequest');
+        const message = formData.get('message');
 
         if (!name || !attending) {
                 return { error: 'Name and attendance are required' };
@@ -21,8 +24,11 @@ export async function submitRSVP(weddingId, formData) {
                                 name,
                                 email,
                                 status: attending === 'yes' ? 'ACCEPTED' : 'DECLINED',
+                                guestCount,
+                                meal,
                                 dietary: diet,
-                                meal
+                                songRequest,
+                                message
                         }
                 });
 

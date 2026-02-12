@@ -63,7 +63,7 @@ const TimelineItem = ({ title, date, description, image, index }) => {
         );
 };
 
-export default function Timeline({ story, date }) {
+export default function Timeline({ story, date, events }) {
         const containerRef = useRef(null);
         const { scrollYProgress } = useScroll({
                 target: containerRef,
@@ -76,24 +76,17 @@ export default function Timeline({ story, date }) {
                 restDelta: 0.001
         });
 
-        const formattedDate = date ? new Date(date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'Future';
+        // Use dynamic events if provided, otherwise fallback (or empty)
+        // events is expected to be an array of { time, title, description, image? }
+        const timelineData = events && events.length > 0 ? events.map((e, i) => ({
+                id: i,
+                title: e.title,
+                date: e.time, // Using the 'time' field as the date/time display
+                description: e.description || "",
+                image: e.image || null
+        })) : [];
 
-        const timelineData = [
-                {
-                        id: 1,
-                        title: "The Beginning",
-                        date: "Once upon a time",
-                        description: story || "Every great love story starts with a simple hello.",
-                        image: "https://placehold.co/600x400/e2e8f0/475569?text=Our+Story"
-                },
-                {
-                        id: 2,
-                        title: "The Big Day",
-                        date: formattedDate,
-                        description: "We can't wait to celebrate this new chapter with you.",
-                        image: "https://placehold.co/600x400/e2e8f0/475569?text=The+Big+Day"
-                }
-        ];
+        if (timelineData.length === 0) return null;
 
         return (
                 <section ref={containerRef} className="relative max-w-7xl mx-auto py-24 overflow-hidden">

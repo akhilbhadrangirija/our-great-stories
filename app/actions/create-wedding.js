@@ -5,25 +5,34 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
 const WeddingSchema = z.object({
+        themeId: z.string().default("classic"),
+        aiStyle: z.string().default("watercolor"),
+        heroImageUrl: z.string().optional(),
         coupleNames: z.string().min(1, 'Couple names are required'),
         date: z.string().transform((str) => new Date(str)),
         venueName: z.string().min(1, 'Venue name is required'),
         venueAddress: z.string().min(1, 'Venue address is required'),
+        hasTimeline: z.coerce.boolean(),
+        timelineEvents: z.string().optional(), // JSON string
+        hasStory: z.coerce.boolean(),
         story: z.string().optional(),
+        hasRegistry: z.coerce.boolean(),
+        registryUrl: z.string().optional(),
+        hasCountdown: z.coerce.boolean(),
+        hasDressCode: z.coerce.boolean(),
+        dressCode: z.string().optional(),
 });
 
 export async function createWedding(formData) {
-        const data = {
-                coupleNames: formData.get('coupleNames'),
-                date: formData.get('date'),
-                venueName: formData.get('venueName'),
-                venueAddress: formData.get('venueAddress'),
-                story: formData.get('story'),
-        };
+        const rawData = Object.fromEntries(formData.entries());
 
-        const validation = WeddingSchema.safeParse(data);
+        // Handle boolean conversions explicitly where needed if zod coerce is not enough for formData strings "true"/"false"
+        // But Zod coerce.boolean() handles "true", "false", "on" etc.
+
+        const validation = WeddingSchema.safeParse(rawData);
 
         if (!validation.success) {
+                console.error("Validation Error:", validation.error.format());
                 return { error: 'Validation failed' };
         }
 
@@ -31,14 +40,10 @@ export async function createWedding(formData) {
         const slug = Math.random().toString(36).substring(2, 8);
 
         try {
-                const wedding = await prisma.wedding.create({
+                await prisma.wedding.create({
                         data: {
                                 slug,
-                                coupleNames: validation.data.coupleNames,
-                                date: validation.data.date,
-                                venueName: validation.data.venueName,
-                                venueAddress: validation.data.venueAddress,
-                                story: validation.data.story,
+                                ...validation.data,
                         },
                 });
 

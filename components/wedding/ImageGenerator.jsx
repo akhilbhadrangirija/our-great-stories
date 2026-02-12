@@ -111,7 +111,7 @@ export default function ImageGenerator() {
                                                         <div className="w-20 h-20 mx-auto border-2 border-dashed border-foreground/20 rounded-full flex items-center justify-center mb-4">
                                                                 <Sparkles className="w-8 h-8 text-foreground/20" />
                                                         </div>
-                                                        <p className="text-lg font-serif italic text-muted-foreground">"Imagination is the beginning of creation."</p>
+                                                        <p className="text-lg font-serif italic text-muted-foreground">&quot;Imagination is the beginning of creation.&quot;</p>
                                                 </div>
                                         )}
                                 </AnimatePresence>

@@ -1,265 +1,166 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
-import { Check, ChevronRight, Loader2, PartyPopper } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/lib/utils';
 import { submitRSVP } from '@/app/actions/rsvp';
 
 export default function RSVPForm({ weddingId }) {
-        const [step, setStep] = useState(1);
         const [loading, setLoading] = useState(false);
-        const [formData, setFormData] = useState({
-                name: '',
-                email: '',
-                attending: 'yes',
-                diet: '',
-                meal: ''
-        });
+        const [attending, setAttending] = useState(''); // 'yes' or 'no'
+        const [submitted, setSubmitted] = useState(false);
 
-        const nextStep = (e) => {
-                if (e) e.preventDefault();
-                setStep(step + 1);
-        };
-
-        const submit = async (e) => {
+        const handleSubmit = async (e) => {
                 e.preventDefault();
                 setLoading(true);
 
-                const data = new FormData();
-                data.append('name', formData.name);
-                data.append('email', formData.email);
-                data.append('attending', formData.attending);
-                data.append('diet', formData.diet);
-                data.append('meal', formData.meal);
-
-                const result = await submitRSVP(weddingId, data);
-
-                setLoading(false);
-                if (result.success) {
-                        setStep(4);
-                } else {
-                        alert('Error submitting RSVP');
+                const formData = new FormData(e.target);
+                if (!formData.get('attending')) {
+                        formData.append('attending', attending);
                 }
+
+                // Default songRequest/diet/message if missing (though FormData gets empty strings usually)
+
+                const res = await submitRSVP(weddingId, formData);
+
+                if (res.success) {
+                        setSubmitted(true);
+                } else {
+                        alert("Something went wrong. Please try again.");
+                }
+                setLoading(false);
         };
 
-        const variants = {
-                enter: { opacity: 0, x: 20 },
-                center: { opacity: 1, x: 0 },
-                exit: { opacity: 0, x: -20, position: 'absolute' }
-        };
+        if (submitted) {
+                return (
+                        <div className="w-full max-w-md mx-auto p-8 text-center bg-white/80 backdrop-blur-sm rounded-xl border border-rose-100 shadow-xl">
+                                <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
+                                        <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                <Check className="w-8 h-8" />
+                                        </div>
+                                        <h3 className="text-2xl font-serif font-bold text-gray-900 mb-2">Response Sent!</h3>
+                                        <p className="text-gray-600">Thank you for letting us know. We can&apos;t wait!</p>
+                                </motion.div>
+                        </div>
+                );
+        }
 
         return (
-                <section className="py-24 px-4 flex justify-center">
-                        <LayoutGroup>
-                                <motion.div
-                                        layout
-                                        className="w-full max-w-md bg-background border border-border rounded-2xl shadow-xl overflow-hidden relative"
-                                        style={{ borderRadius: 24 }}
-                                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                >
-                                        <div className="p-8">
-                                                <motion.div layout className="mb-6">
-                                                        <h2 className="text-2xl font-serif font-bold">RSVP</h2>
-                                                        <p className="text-muted-foreground text-sm">Join us for our special day</p>
+                <div className="w-full max-w-lg mx-auto bg-white/50 backdrop-blur-md border border-white/60 shadow-xl rounded-2xl overflow-hidden">
+                        <div className="p-6 md:p-8">
+                                <h3 className="text-3xl font-serif text-center mb-8 text-gray-800">RSVP</h3>
 
-                                                        {/* Progress Dots */}
-                                                        {step < 4 && (
-                                                                <div className="flex gap-2 mt-4">
-                                                                        {[1, 2, 3].map((s) => (
-                                                                                <motion.div
-                                                                                        key={s}
-                                                                                        className={cn(
-                                                                                                "h-1 rounded-full transition-colors duration-300",
-                                                                                                s <= step ? "bg-primary w-8" : "bg-muted w-2"
-                                                                                        )}
-                                                                                />
-                                                                        ))}
-                                                                </div>
-                                                        )}
-                                                </motion.div>
-
-                                                <form onSubmit={step === 3 ? submit : nextStep} className="relative">
-                                                        <AnimatePresence mode="popLayout" initial={false}>
-                                                                {step === 1 && (
-                                                                        <motion.div
-                                                                                key="step1"
-                                                                                variants={variants}
-                                                                                initial="enter"
-                                                                                animate="center"
-                                                                                exit="exit"
-                                                                                className="space-y-4"
-                                                                        >
-                                                                                <div className="space-y-2">
-                                                                                        <Label htmlFor="name">Full Name</Label>
-                                                                                        <Input
-                                                                                                id="name"
-                                                                                                required
-                                                                                                value={formData.name}
-                                                                                                onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                                                                                placeholder="Jane Doe"
-                                                                                        />
-                                                                                </div>
-                                                                                <div className="space-y-2">
-                                                                                        <Label htmlFor="email">Email Address</Label>
-                                                                                        <Input
-                                                                                                id="email"
-                                                                                                type="email"
-                                                                                                required
-                                                                                                value={formData.email}
-                                                                                                onChange={e => setFormData({ ...formData, email: e.target.value })}
-                                                                                                placeholder="jane@example.com"
-                                                                                        />
-                                                                                </div>
-                                                                                <div className="pt-4 flex justify-end">
-                                                                                        <Button type="submit" disabled={!formData.name || !formData.email}>
-                                                                                                Next <ChevronRight className="w-4 h-4 ml-2" />
-                                                                                        </Button>
-                                                                                </div>
-                                                                        </motion.div>
-                                                                )}
-
-                                                                {step === 2 && (
-                                                                        <motion.div
-                                                                                key="step2"
-                                                                                variants={variants}
-                                                                                initial="enter"
-                                                                                animate="center"
-                                                                                exit="exit"
-                                                                                className="space-y-6"
-                                                                        >
-                                                                                <div className="space-y-3">
-                                                                                        <Label>Will you be attending?</Label>
-                                                                                        <RadioGroup
-                                                                                                value={formData.attending}
-                                                                                                onValueChange={val => setFormData({ ...formData, attending: val })}
-                                                                                                className="grid grid-cols-2 gap-4"
-                                                                                        >
-                                                                                                <div>
-                                                                                                        <RadioGroupItem value="yes" id="yes" className="peer sr-only" />
-                                                                                                        <Label
-                                                                                                                htmlFor="yes"
-                                                                                                                className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-transparent p-4 hover:bg-muted hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:text-primary cursor-pointer transition-all"
-                                                                                                        >
-                                                                                                                <Check className="mb-2 h-6 w-6" />
-                                                                                                                Joyfully Accept
-                                                                                                        </Label>
-                                                                                                </div>
-                                                                                                <div>
-                                                                                                        <RadioGroupItem value="no" id="no" className="peer sr-only" />
-                                                                                                        <Label
-                                                                                                                htmlFor="no"
-                                                                                                                className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-transparent p-4 hover:bg-muted hover:text-accent-foreground peer-data-[state=checked]:border-destructive peer-data-[state=checked]:text-destructive cursor-pointer transition-all"
-                                                                                                        >
-                                                                                                                <span className="mb-2 text-xl">😢</span>
-                                                                                                                Regretfully Decline
-                                                                                                        </Label>
-                                                                                                </div>
-                                                                                        </RadioGroup>
-                                                                                </div>
-                                                                                <div className="flex justify-between pt-2">
-                                                                                        <Button variant="ghost" onClick={() => setStep(1)}>Back</Button>
-                                                                                        <Button type="submit">
-                                                                                                Next <ChevronRight className="w-4 h-4 ml-2" />
-                                                                                        </Button>
-                                                                                </div>
-                                                                        </motion.div>
-                                                                )}
-
-                                                                {step === 3 && (
-                                                                        <motion.div
-                                                                                key="step3"
-                                                                                variants={variants}
-                                                                                initial="enter"
-                                                                                animate="center"
-                                                                                exit="exit"
-                                                                                className="space-y-4"
-                                                                        >
-                                                                                {formData.attending === 'yes' ? (
-                                                                                        <>
-                                                                                                <div className="space-y-2">
-                                                                                                        <Label htmlFor="diet">Dietary Restrictions</Label>
-                                                                                                        <Input
-                                                                                                                id="diet"
-                                                                                                                value={formData.diet}
-                                                                                                                onChange={e => setFormData({ ...formData, diet: e.target.value })}
-                                                                                                                placeholder="Gluten-free, Vegan, etc."
-                                                                                                        />
-                                                                                                </div>
-                                                                                                <div className="space-y-2">
-                                                                                                        <Label htmlFor="meal">Meal Preference</Label>
-                                                                                                        <Input
-                                                                                                                id="meal"
-                                                                                                                value={formData.meal}
-                                                                                                                onChange={e => setFormData({ ...formData, meal: e.target.value })}
-                                                                                                                placeholder="Chicken, Beef, Vegetarian..."
-                                                                                                        />
-                                                                                                </div>
-                                                                                        </>
-                                                                                ) : (
-                                                                                        <div className="py-4 text-center text-muted-foreground">
-                                                                                                We'll miss you! Feel free to leave a message.
-                                                                                                <Textarea
-                                                                                                        className="mt-4"
-                                                                                                        placeholder="Your message to the couple..."
-                                                                                                />
-                                                                                        </div>
-                                                                                )}
-
-                                                                                <div className="flex justify-between pt-4">
-                                                                                        <Button variant="ghost" onClick={() => setStep(2)}>Back</Button>
-                                                                                        <Button type="submit" disabled={loading}>
-                                                                                                {loading ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : null}
-                                                                                                {formData.attending === 'yes' ? 'Confirm RSVP' : 'Send Message'}
-                                                                                        </Button>
-                                                                                </div>
-                                                                        </motion.div>
-                                                                )}
-
-                                                                {step === 4 && (
-                                                                        <motion.div
-                                                                                key="step4"
-                                                                                variants={variants}
-                                                                                initial="enter"
-                                                                                animate="center"
-                                                                                exit="exit"
-                                                                                className="text-center py-8 space-y-4"
-                                                                        >
-                                                                                <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                                                        <PartyPopper className="w-10 h-10" />
-                                                                                </div>
-                                                                                <h3 className="text-2xl font-bold font-serif">
-                                                                                        {formData.attending === 'yes' ? "You're on the list!" : "Message Sent"}
-                                                                                </h3>
-                                                                                <p className="text-muted-foreground">
-                                                                                        {formData.attending === 'yes'
-                                                                                                ? "We can't wait to celebrate with you."
-                                                                                                : "Thank you for letting us know."}
-                                                                                </p>
-                                                                                <Button variant="outline" onClick={() => {
-                                                                                        setStep(1);
-                                                                                        setFormData({
-                                                                                                name: '',
-                                                                                                email: '',
-                                                                                                attending: 'yes',
-                                                                                                diet: '',
-                                                                                                meal: ''
-                                                                                        });
-                                                                                }}>
-                                                                                        Submit Another Response
-                                                                                </Button>
-                                                                        </motion.div>
-                                                                )}
-                                                        </AnimatePresence>
-                                                </form>
+                                <form onSubmit={handleSubmit} className="space-y-6">
+                                        {/* Attendance Toggle */}
+                                        <div className="flex bg-slate-100 p-1 rounded-lg">
+                                                <button
+                                                        type="button"
+                                                        onClick={() => setAttending('yes')}
+                                                        className={`flex-1 py-3 px-4 rounded-md text-sm font-medium transition-all ${attending === 'yes' ? 'bg-white shadow-sm text-green-700' : 'text-slate-500 hover:text-slate-700'}`}
+                                                >
+                                                        Joyfully Accept
+                                                </button>
+                                                <button
+                                                        type="button"
+                                                        onClick={() => setAttending('no')}
+                                                        className={`flex-1 py-3 px-4 rounded-md text-sm font-medium transition-all ${attending === 'no' ? 'bg-white shadow-sm text-red-700' : 'text-slate-500 hover:text-slate-700'}`}
+                                                >
+                                                        Regretfully Decline
+                                                </button>
+                                                <input type="hidden" name="attending" value={attending || ''} />
                                         </div>
-                                </motion.div>
-                        </LayoutGroup>
-                </section>
+
+                                        <AnimatePresence mode="wait">
+                                                {attending === 'yes' && (
+                                                        <motion.div
+                                                                key="attending-yes"
+                                                                initial={{ opacity: 0, height: 0 }}
+                                                                animate={{ opacity: 1, height: 'auto' }}
+                                                                exit={{ opacity: 0, height: 0 }}
+                                                                className="space-y-4 overflow-hidden"
+                                                        >
+                                                                <p className="text-center text-gray-600 text-sm mb-4">We can&apos;t wait to celebrate with you!</p>
+                                                                <div className="space-y-2">
+                                                                        <label className="text-sm font-medium text-gray-700">Full Name</label>
+                                                                        <Input name="name" required placeholder="Guest Name" className="bg-white/80" />
+                                                                </div>
+
+                                                                <div className="space-y-2">
+                                                                        <label className="text-sm font-medium text-gray-700">Email</label>
+                                                                        <Input name="email" type="email" placeholder="email@example.com" className="bg-white/80" />
+                                                                </div>
+
+                                                                <div className="grid grid-cols-2 gap-4">
+                                                                        <div className="space-y-2">
+                                                                                <label className="text-sm font-medium text-gray-700">Guests</label>
+                                                                                <select name="guestCount" className="w-full h-10 rounded-md border border-input bg-white/80 px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                                                                                        <option value="1">1 Person</option>
+                                                                                        <option value="2">2 People</option>
+                                                                                        <option value="3">3 People</option>
+                                                                                        <option value="4">4 People</option>
+                                                                                        <option value="5">5 People</option>
+                                                                                </select>
+                                                                        </div>
+                                                                        <div className="space-y-2">
+                                                                                <label className="text-sm font-medium text-gray-700">Meal</label>
+                                                                                <select name="meal" className="w-full h-10 rounded-md border border-input bg-white/80 px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                                                                                        <option value="standard">Standard</option>
+                                                                                        <option value="vegetarian">Vegetarian</option>
+                                                                                        <option value="vegan">Vegan</option>
+                                                                                        <option value="gluten-free">Gluten Free</option>
+                                                                                </select>
+                                                                        </div>
+                                                                </div>
+
+                                                                <div className="space-y-2">
+                                                                        <label className="text-sm font-medium text-gray-700">Dietary Restrictions</label>
+                                                                        <Input name="diet" placeholder="Any allergies?" className="bg-white/80" />
+                                                                </div>
+
+                                                                <div className="space-y-2">
+                                                                        <label className="text-sm font-medium text-gray-700">Song Request</label>
+                                                                        <Input name="songRequest" placeholder="I bet you look good on the dancefloor..." className="bg-white/80" />
+                                                                </div>
+
+                                                                <div className="space-y-2">
+                                                                        <label className="text-sm font-medium text-gray-700">Message to Couple</label>
+                                                                        <textarea name="message" className="w-full min-h-[80px] rounded-md border border-input bg-white/80 px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" placeholder="Love you guys!" />
+                                                                </div>
+                                                        </motion.div>
+                                                )}
+
+                                                {attending === 'no' && (
+                                                        <motion.div
+                                                                key="attending-no"
+                                                                initial={{ opacity: 0, height: 0 }}
+                                                                animate={{ opacity: 1, height: 'auto' }}
+                                                                exit={{ opacity: 0, height: 0 }}
+                                                                className="space-y-4 overflow-hidden"
+                                                        >
+                                                                <div className="space-y-2">
+                                                                        <label className="text-sm font-medium text-gray-700">Your Name</label>
+                                                                        <Input name="name" required placeholder="Guest Name" className="bg-white/80" />
+                                                                </div>
+                                                                <div className="space-y-2">
+                                                                        <label className="text-sm font-medium text-gray-700">Message (Optional)</label>
+                                                                        <textarea name="message" className="w-full min-h-[80px] rounded-md border border-input bg-white/80 px-3 py-2 text-sm shadow-sm" placeholder="Wish you the best!" />
+                                                                </div>
+                                                        </motion.div>
+                                                )}
+                                        </AnimatePresence>
+
+                                        <Button
+                                                type="submit"
+                                                disabled={loading || !attending}
+                                                className="w-full h-12 text-lg font-medium bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white shadow-md relative overflow-hidden"
+                                        >
+                                                {loading && <Loader2 className="animate-spin mr-2 absolute left-4" />}
+                                                {loading ? "Sending..." : "Send RSVP"}
+                                        </Button>
+                                </form>
+                        </div>
+                </div>
         );
 }

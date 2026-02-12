@@ -7,15 +7,38 @@ datasource db {
 }
 
 // Wedding Product
+// Wedding Product
 model Wedding {
   id            String   @id @default(cuid())
   slug          String   @unique
+  
+  // Design Choices
+  themeId       String   @default("classic") // classic, midnight, boho, modern, retro
+  aiStyle       String   @default("watercolor") // watercolor, oil, etc
+  heroImageUrl  String?
+
+  // Core Details
   coupleNames   String
   date          DateTime
   venueName     String
   venueAddress  String
   mapUrl        String?
+  
+  // Modules
+  hasTimeline   Boolean  @default(false)
+  timelineEvents String? // Stored as JSON string
+  
+  hasStory      Boolean  @default(false)
   story         String?
+  
+  hasRegistry   Boolean  @default(false)
+  registryUrl   String?
+  
+  hasCountdown  Boolean  @default(true)
+  
+  hasDressCode  Boolean  @default(false)
+  dressCode     String?
+
   guests        Guest[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -25,12 +48,21 @@ model Guest {
   id        String   @id @default(cuid())
   weddingId String
   wedding   Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  
   name      String
   email     String?
+  
+  // RSVP Details
   status    String   @default("PENDING") // ACCEPTED, DECLINED, PENDING
+  guestCount Int     @default(1)
   meal      String?
   dietary   String?
+  songRequest String?
+  message   String?
+  
+  // Deprecated but kept for safety
   plusOne   Boolean  @default(false)
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
