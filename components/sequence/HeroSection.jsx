@@ -99,12 +99,42 @@ export default function HeroSection({ onStart }) {
                                 </h1>
 
                                 <div className="flex items-center justify-center gap-12 relative h-32 w-full max-w-2xl">
-                                        <Button
-                                                onClick={handleYesClick}
-                                                className="bg-green-600 hover:bg-green-500 text-white text-xl font-semibold px-12 py-8 rounded-full shadow-[0_0_20px_rgba(34,197,94,0.6)] transform transition-transform hover:scale-110 active:scale-95"
+                                        <motion.div
+                                                className="relative z-10"
+                                                whileHover="hover"
+                                                initial="initial"
                                         >
-                                                YES!
-                                        </Button>
+                                                <Button
+                                                        onClick={handleYesClick}
+                                                        className="relative z-20 bg-green-600 hover:bg-green-500 text-white text-xl font-semibold px-12 py-8 rounded-full shadow-[0_0_20px_rgba(34,197,94,0.6)] transform transition-transform hover:scale-110 active:scale-95"
+                                                >
+                                                        YES!
+                                                </Button>
+                                                {[...Array(12)].map((_, i) => (
+                                                        <motion.div
+                                                                key={i}
+                                                                custom={i}
+                                                                variants={{
+                                                                        initial: { opacity: 0, y: 0, scale: 0 },
+                                                                        hover: (i) => ({
+                                                                                opacity: [0, 1, 0],
+                                                                                y: -60 - (i % 4) * 30,
+                                                                                x: (i % 2 === 0 ? 1 : -1) * (10 + (i % 3) * 20),
+                                                                                scale: [0.8, 1.2, 0.8],
+                                                                                transition: {
+                                                                                        duration: 1.5 + (i % 2) * 0.5,
+                                                                                        repeat: Infinity,
+                                                                                        delay: i * 0.1,
+                                                                                        ease: "easeOut"
+                                                                                }
+                                                                        })
+                                                                }}
+                                                                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl pointer-events-none text-red-500 drop-shadow-sm z-0"
+                                                        >
+                                                                ❤️
+                                                        </motion.div>
+                                                ))}
+                                        </motion.div>
 
                                         <motion.div
                                                 animate={{ x: noButtonPos.x, y: noButtonPos.y }}
