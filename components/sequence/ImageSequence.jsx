@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import useImagePreloader from '@/hooks/useImagePreloader';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useScroll, useMotionValueEvent } from 'framer-motion';
 
 // Generate image paths
 const frameCount = 240;
@@ -12,45 +13,23 @@ const imagePaths = Array.from({ length: frameCount }, (_, i) => {
         return `/bg-image-frames/ezgif-frame-${frameNumber}.jpg`;
 });
 
-export default function ImageSequence({ start, onComplete }) {
+export default function ImageSequence({ start }) {
         const canvasRef = useRef(null);
         const [currentFrame, setCurrentFrame] = useState(0);
-        const [isFinished, setIsFinished] = useState(false);
-        const requestRef = useRef();
-        const startTimeRef = useRef();
 
         const { images, loaded, progress } = useImagePreloader(imagePaths);
+        const { scrollYProgress } = useScroll();
 
-        // Animation Logic
-        const animate = (time) => {
-                if (!startTimeRef.current) startTimeRef.current = time;
-                const progress = time - startTimeRef.current;
+        // Scroll mapping
+        useMotionValueEvent(scrollYProgress, "change", (latest) => {
+                if (!start || !loaded) return;
 
-                // Duration: 10 seconds (adjust as needed)
-                const duration = 10000;
-                const totalFrames = frameCount - 1;
-
-                // Calculate frame based on time progress
-                let frameIndex = Math.floor((progress / duration) * totalFrames);
-
-                if (frameIndex > totalFrames) {
-                        frameIndex = totalFrames;
-                        setIsFinished(true);
-                        if (onComplete) onComplete();
-                        return; // Stop animation
-                }
-
+                const frameIndex = Math.min(
+                        frameCount - 1,
+                        Math.floor(latest * (frameCount - 1))
+                );
                 setCurrentFrame(frameIndex);
-                requestRef.current = requestAnimationFrame(animate);
-        };
-
-        useEffect(() => {
-                if (start && loaded && !isFinished) {
-                        requestRef.current = requestAnimationFrame(animate);
-                }
-                return () => cancelAnimationFrame(requestRef.current);
-        }, [start, loaded, isFinished]);
-
+        });
 
         // Draw Frame Function
         const drawFrame = (index) => {
@@ -84,32 +63,26 @@ export default function ImageSequence({ start, onComplete }) {
                 );
         };
 
-        // Animation Loop
-        // ... (animate function uses setCurrentFrame)
-
         // Trigger draw on frame change or load
         useEffect(() => {
                 drawFrame(currentFrame);
-        }, [currentFrame, loaded, images]);
+        }, [currentFrame, loaded, images, start]);
 
         // Handle Resize
         useEffect(() => {
                 const handleResize = () => {
                         if (canvasRef.current) {
-                                // Setting width/height clears canvas
                                 canvasRef.current.width = window.innerWidth;
                                 canvasRef.current.height = window.innerHeight;
-                                // Redraw immediately
                                 drawFrame(currentFrame);
                         }
                 };
 
                 window.addEventListener('resize', handleResize);
-                // Initial size set
                 handleResize();
 
                 return () => window.removeEventListener('resize', handleResize);
-        }, [loaded, currentFrame, images]); // Add dependencies so handleResize can access latest state
+        }, [loaded, currentFrame, images]);
 
 
         return (
@@ -122,11 +95,12 @@ export default function ImageSequence({ start, onComplete }) {
                                 </div>
                         )}
 
+                        {/* Canvas Layer */}
                         <canvas
                                 ref={canvasRef}
                                 className={cn(
                                         "w-full h-full object-cover transition-all duration-1000",
-                                        (!start || isFinished) ? "blur-md brightness-50" : "blur-0 brightness-100"
+                                        (!start) ? "blur-md brightness-50" : "blur-0 brightness-100" // Only blur if not started
                                 )}
                         />
                 </div>

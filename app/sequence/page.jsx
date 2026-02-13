@@ -14,7 +14,6 @@ const ImageSequence = dynamic(() => import('../../components/sequence/ImageSeque
 
 export default function SequencePage() {
         const [started, setStarted] = useState(false);
-        const [finished, setFinished] = useState(false);
         const [isMuted, setIsMuted] = useState(false);
         const audioRef = useRef(null);
 
@@ -51,26 +50,27 @@ export default function SequencePage() {
         return (
                 <main className="relative w-full min-h-screen text-white">
 
-                        {/* Fixed Background Sequence */}
-                        <ImageSequence
-                                start={started}
-                                onComplete={() => setFinished(true)}
-                        />
+                        {/* Fixed Background Sequence - Driven by Scroll when started */}
+                        <ImageSequence start={started} />
 
                         {/* Hero Section - Fades out when started */}
                         <AnimatePresence>
                                 {!started && (
                                         <motion.div
                                                 exit={{ opacity: 0, transition: { duration: 1 } }}
-                                                className="relative z-10"
+                                                className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
                                         >
-                                                <HeroSection onStart={handleStart} />
+                                                {/* Wrap Hero in a fixed container to ensure it stays top */}
+                                                <div className="w-full h-full relative">
+                                                        <HeroSection onStart={handleStart} />
+                                                </div>
                                         </motion.div>
                                 )}
                         </AnimatePresence>
 
-                        {/* Emotional Section - Appears when sequence finishes */}
-                        {finished && <EmotionalSection />}
+                        {/* Emotional Section - Tall Scroll Container */}
+                        {/* Only render when started so it mounts and resets scroll */}
+                        {started && <EmotionalSection />}
 
                         {/* Fixed Mute Button */}
                         {started && (
