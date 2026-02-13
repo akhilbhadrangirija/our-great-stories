@@ -35,7 +35,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html suppressHydrationWarning lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${lato.variable} ${cinzel.variable} ${inter.variable} ${cormorant.variable} ${montserrat.variable} ${oswald.variable} ${roboto.variable} ${abril.variable} ${courier.variable} antialiased`}
       >

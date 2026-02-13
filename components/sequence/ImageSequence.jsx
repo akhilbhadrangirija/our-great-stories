@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useScroll, useTransform, useMotionValueEvent } from 'framer-motion';
+import { useScroll, useTransform, useMotionValueEvent, motion, useAnimation } from 'framer-motion';
 import Lenis from 'lenis';
 import useImagePreloader from '@/hooks/useImagePreloader';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,7 @@ export default function ImageSequence() {
         const [showQuestion, setShowQuestion] = useState(false);
         const [interactionState, setInteractionState] = useState('pending'); // 'pending', 'yes', 'no'
         const lenisRef = useRef(null);
+        const controls = useAnimation();
 
         // Initialize Lenis for smooth scrolling
         useEffect(() => {
@@ -50,6 +51,23 @@ export default function ImageSequence() {
                 };
         }, []);
 
+        // Scroll Lock during loading
+        useEffect(() => {
+                if (!lenisRef.current) return;
+                if (!loaded) {
+                        lenisRef.current.stop();
+                        document.body.style.overflow = 'hidden';
+                } else {
+                        lenisRef.current.start();
+                        document.body.style.overflow = '';
+                }
+
+                return () => {
+                        document.body.style.overflow = '';
+                }
+        }, [loaded]);
+
+
         // Update canvas frame based on scroll
         useMotionValueEvent(scrollYProgress, 'change', (latest) => {
                 if (!loaded || !canvasRef.current || interactionState === 'yes') return;
@@ -60,7 +78,6 @@ export default function ImageSequence() {
                 );
 
                 // Logic for "Question" checkpoint
-                // Let's say we ask at 75% scroll (approx frame 180)
                 if (latest > 0.75 && interactionState === 'pending' && !showQuestion) {
                         setShowQuestion(true);
                 } else if (latest < 0.70 && showQuestion) {
@@ -72,7 +89,6 @@ export default function ImageSequence() {
                 const img = images[frameIndex];
 
                 if (img) {
-                        // Draw image keeping aspect ratio 'cover'
                         const canvas = canvasRef.current;
                         const hRatio = canvas.width / img.width;
                         const vRatio = canvas.height / img.height;
@@ -100,12 +116,6 @@ export default function ImageSequence() {
                         if (canvasRef.current) {
                                 canvasRef.current.width = window.innerWidth;
                                 canvasRef.current.height = window.innerHeight;
-
-                                // Redraw current frame if possible (simplified: just force update logic later or rely on scroll event)
-                                if (loaded && images.length > 0) {
-                                        // Trigger a redraw manually if needed, but scroll event usually covers it
-                                        // For now, let's just ensure canvas size is correct
-                                }
                         }
                 };
 
@@ -113,47 +123,37 @@ export default function ImageSequence() {
                 handleResize();
 
                 return () => window.removeEventListener('resize', handleResize);
-        }, [loaded, images]);
+        }, [loaded, images]); // Added loaded dependency to ensure canvas is ready
 
 
         const handleYes = () => {
                 setInteractionState('yes');
                 setShowQuestion(false);
 
-                // Auto-scroll to end or animate to end
+                // Auto-scroll to end
                 if (lenisRef.current) {
                         lenisRef.current.scrollTo('bottom', { duration: 2 });
                 }
-
-                // Force animate canvas to end frame (if we want to decouple from scroll)
-                // For now, let's rely on the scroll to drive it, but 'yes' sets state 
-                // If we want programatic animation we'd need a separate effect driven by 'interactionState'
         };
 
         const handleNo = () => {
-                const btn = document.getElementById('no-btn');
-                if (btn) {
-                        btn.classList.add('animate-shake');
-                        setTimeout(() => btn.classList.remove('animate-shake'), 500);
-                }
-                // Maybe show a tooltip or toast?
+                controls.start({
+                        x: [0, -10, 10, -10, 10, 0],
+                        transition: { duration: 0.5 }
+                });
                 setInteractionState('no');
-                // But allow scrolling to continue? Or block? 
-                // Requirement: "Do not advance to the final frame" -> This implies we might block scroll or just not update canvas past this point?
-                // Let's just keep it simple for now: shake and stay.
         };
-
-        if (!loaded) {
-                return (
-                        <div className="fixed inset-0 flex flex-col items-center justify-center bg-black text-white z-50">
-                                <Loader2 className="w-10 h-10 animate-spin mb-4" />
-                                <p className="text-xl font-light">Loading Experience... {progress}%</p>
-                        </div>
-                );
-        }
 
         return (
                 <div ref={containerRef} className="relative h-[800vh] bg-black">
+                        {/* Loader Overlay */}
+                        {!loaded && (
+                                <div className="fixed inset-0 flex flex-col items-center justify-center bg-black text-white z-50">
+                                        <Loader2 className="w-10 h-10 animate-spin mb-4" />
+                                        <p className="text-xl font-light">Loading Experience... {progress}%</p>
+                                </div>
+                        )}
+
                         <div className="sticky top-0 left-0 w-full h-screen overflow-hidden">
                                 <canvas
                                         ref={canvasRef}
@@ -175,28 +175,27 @@ export default function ImageSequence() {
                                                         >
                                                                 Yes, Let's Go
                                                         </Button>
-                                                        <Button
-                                                                id="no-btn"
-                                                                onClick={handleNo}
-                                                                variant="outline"
-                                                                className="border-white/20 text-white hover:bg-white/10 px-8 py-6 text-lg rounded-full"
-                                                        >
-                                                                No, Not Yet
-                                                        </Button>
+                                                        <motion.div animate={controls}>
+                                                                <Button
+                                                                        onClick={handleNo}
+                                                                        variant="outline"
+                                                                        className="border-white/20 text-white hover:bg-white/10 px-8 py-6 text-lg rounded-full"
+                                                                >
+                                                                        No, Not Yet
+                                                                </Button>
+                                                        </motion.div>
                                                 </div>
                                         </div>
                                 </div>
 
-                                {/* Optional: Scroll indicator or other overlays */}
-                                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/50 text-sm animate-bounce">
+                                {/* Optional: Scroll indicator */}
+                                <div className={cn(
+                                        "absolute bottom-10 left-1/2 -translate-x-1/2 text-white/50 text-sm animate-bounce transition-opacity duration-500",
+                                        loaded ? "opacity-100" : "opacity-0"
+                                )}>
                                         Scroll to explore
                                 </div>
                         </div>
-
-                        {/* Spacer content to allow scrolling? Or just pure empty height? 
-          The Request implies purely visual story driven by scroll.
-          We can add some text overlays at different scroll points if needed later.
-      */}
                 </div>
         );
 }

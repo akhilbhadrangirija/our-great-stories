@@ -1,4 +1,11 @@
-import ImageSequence from '@/components/sequence/ImageSequence';
+'use client';
+
+import dynamic from 'next/dynamic';
+
+const ImageSequence = dynamic(() => import('../../components/sequence/ImageSequence'), {
+        ssr: false,
+        loading: () => <p>Loading...</p>
+});
 
 export default function SequencePage() {
         return (
