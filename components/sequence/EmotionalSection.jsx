@@ -52,8 +52,14 @@ export default function EmotionalSection() {
         }, [scrollYProgress]);
 
         return (
-                <div ref={containerRef} className="relative h-[600vh] w-full z-20">
-                        <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
+                <motion.div
+                        ref={containerRef}
+                        className="relative h-[600vh] w-full z-20"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 2 }}
+                >
+                        <div className="sticky top-0 left-0 h-screen w-full flex items-center justify-center">
 
                                 <AnimatePresence mode="wait">
                                         {!showFinal ? (
@@ -115,6 +121,6 @@ export default function EmotionalSection() {
                                         </motion.div>
                                 )}
                         </div>
-                </div>
+                </motion.div>
         );
 }

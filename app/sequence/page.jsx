@@ -16,7 +16,7 @@ export default function SequencePage() {
         const [finished, setFinished] = useState(false);
 
         return (
-                <main className="relative w-full min-h-screen text-white overflow-x-hidden">
+                <main className="relative w-full min-h-screen text-white">
 
                         {/* Fixed Background Sequence */}
                         <ImageSequence
@@ -37,16 +37,7 @@ export default function SequencePage() {
                         </AnimatePresence>
 
                         {/* Emotional Section - Appears when sequence finishes */}
-                        {finished && (
-                                <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        transition={{ duration: 2 }}
-                                        className="relative z-10"
-                                >
-                                        <EmotionalSection />
-                                </motion.div>
-                        )}
+                        {finished && <EmotionalSection />}
                 </main>
         );
 }
