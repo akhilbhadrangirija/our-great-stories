@@ -29,11 +29,12 @@ export default function EmotionalSection() {
 
         const [currentIndex, setCurrentIndex] = useState(0);
         const [showFinal, setShowFinal] = useState(false);
+        const [valentineClicked, setValentineClicked] = useState(false);
         const [finalClicked, setFinalClicked] = useState(false);
 
         useEffect(() => {
                 const unsubscribe = scrollYProgress.on("change", (latest) => {
-                        // Logic: 0-0.9 maps to lines. 0.9-1 show final.
+                        // Logic: 0-0.95 maps to lines. 0.95-1 show final.
                         if (latest > 0.95) {
                                 setShowFinal(true);
                         } else {
@@ -53,30 +54,72 @@ export default function EmotionalSection() {
                                         {!showFinal ? (
                                                 <motion.p
                                                         key={currentIndex}
-                                                        initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
+                                                        initial={{ opacity: 0, y: 10, filter: "blur(10px)" }}
                                                         animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                                                        exit={{ opacity: 0, y: -20, filter: "blur(10px)" }}
-                                                        transition={{ duration: 0.5 }}
-                                                        className="text-3xl md:text-5xl font-serif text-white text-center px-6 max-w-4xl leading-relaxed drop-shadow-xl"
+                                                        exit={{ opacity: 0, y: -10, filter: "blur(10px)" }}
+                                                        transition={{ duration: 0.8, ease: "easeInOut" }}
+                                                        className="text-4xl md:text-6xl font-[family-name:var(--font-hurricane)] text-white text-center px-6 max-w-4xl leading-relaxed drop-shadow-xl"
                                                 >
                                                         {fullLines[currentIndex]}
                                                 </motion.p>
                                         ) : (
                                                 <motion.div
-                                                        key="final"
+                                                        key="final-stage"
                                                         initial={{ opacity: 0, scale: 0.9 }}
                                                         animate={{ opacity: 1, scale: 1 }}
                                                         transition={{ duration: 0.8 }}
-                                                        className="text-center space-y-8 pointer-events-auto"
+                                                        className="text-center space-y-8 pointer-events-auto flex flex-col items-center"
                                                 >
-                                                        {!finalClicked ? (
+                                                        {!valentineClicked ? (
+                                                                // Phase 1: Interactive Valentine Button
                                                                 <Button
-                                                                        onClick={() => setFinalClicked(true)}
-                                                                        className="bg-white/10 hover:bg-white/20 text-white border border-white/30 text-3xl px-12 py-8 rounded-full shadow-[0_0_50px_rgba(255,255,255,0.2)] hover:shadow-[0_0_70px_rgba(255,255,255,0.4)] backdrop-blur-sm transition-all duration-500 hover:scale-105"
+                                                                        onClick={() => setValentineClicked(true)}
+                                                                        className="bg-red-600/20 hover:bg-red-600/30 text-white border border-red-500/50 text-3xl md:text-5xl font-[family-name:var(--font-hurricane)] px-12 py-8 rounded-full shadow-[0_0_30px_rgba(220,38,38,0.3)] hover:shadow-[0_0_50px_rgba(220,38,38,0.5)] backdrop-blur-sm transition-all duration-500 hover:scale-105 animate-pulse"
                                                                 >
-                                                                        Always.
+                                                                        Happy Valentine’s Day ❤️
                                                                 </Button>
+                                                        ) : !finalClicked ? (
+                                                                // Phase 2: Poem Reveal + Always Button
+                                                                <motion.div
+                                                                        initial={{ opacity: 0 }}
+                                                                        animate={{ opacity: 1 }}
+                                                                        className="space-y-6 max-w-3xl px-4"
+                                                                >
+                                                                        <motion.p
+                                                                                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+                                                                                className="text-3xl md:text-5xl font-[family-name:var(--font-hurricane)] leading-relaxed"
+                                                                        >
+                                                                                Today we celebrate love.
+                                                                        </motion.p>
+                                                                        <motion.p
+                                                                                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.5 }}
+                                                                                className="text-3xl md:text-5xl font-[family-name:var(--font-hurricane)] leading-relaxed"
+                                                                        >
+                                                                                One day we’ll celebrate everything we built together.
+                                                                        </motion.p>
+                                                                        <motion.p
+                                                                                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 3.0 }}
+                                                                                className="text-3xl md:text-5xl font-[family-name:var(--font-hurricane)] leading-relaxed"
+                                                                        >
+                                                                                And all the Valentine’s Days still waiting for us.
+                                                                        </motion.p>
+
+                                                                        <motion.div
+                                                                                initial={{ opacity: 0, scale: 0.8 }}
+                                                                                animate={{ opacity: 1, scale: 1 }}
+                                                                                transition={{ delay: 4.5, duration: 0.8 }}
+                                                                                className="pt-8"
+                                                                        >
+                                                                                <Button
+                                                                                        onClick={() => setFinalClicked(true)}
+                                                                                        className="bg-white/10 hover:bg-white/20 text-white border border-white/30 text-xl md:text-2xl px-10 py-6 rounded-full shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_50px_rgba(255,255,255,0.4)] backdrop-blur-sm transition-all duration-500 hover:scale-105"
+                                                                                >
+                                                                                        Always.
+                                                                                </Button>
+                                                                        </motion.div>
+                                                                </motion.div>
                                                         ) : (
+                                                                // Phase 3: Final Message
                                                                 <motion.div
                                                                         initial={{ opacity: 0 }}
                                                                         animate={{ opacity: 1 }}

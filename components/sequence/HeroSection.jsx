@@ -88,9 +88,12 @@ export default function HeroSection({ onStart }) {
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 1, ease: "easeOut" }}
-                                className="z-10 text-center flex flex-col items-center gap-12"
+                                className="z-10 text-center flex flex-col items-center gap-8"
                         >
-                                <h1 className="text-5xl md:text-8xl font-bold text-white font-serif tracking-tight drop-shadow-[0_0_15px_rgba(255,0,0,0.5)]">
+                                <h2 className="text-4xl md:text-6xl font-[family-name:var(--font-hurricane)] text-white/90 drop-shadow-md">
+                                        Hey Divya,
+                                </h2>
+                                <h1 className="text-5xl md:text-7xl font-bold text-white font-serif tracking-tight drop-shadow-[0_0_15px_rgba(255,0,0,0.5)]">
                                         Will you be my <br />
                                         <span className="text-red-500 inline-block mt-2">Valentine?</span>
                                 </h1>
@@ -98,7 +101,7 @@ export default function HeroSection({ onStart }) {
                                 <div className="flex items-center justify-center gap-12 relative h-32 w-full max-w-2xl">
                                         <Button
                                                 onClick={handleYesClick}
-                                                className="bg-green-600 hover:bg-green-500 text-white text-2xl font-bold px-12 py-8 rounded-full shadow-[0_0_20px_rgba(34,197,94,0.6)] transform transition-transform hover:scale-110 active:scale-95"
+                                                className="bg-green-600 hover:bg-green-500 text-white text-xl font-semibold px-12 py-8 rounded-full shadow-[0_0_20px_rgba(34,197,94,0.6)] transform transition-transform hover:scale-110 active:scale-95"
                                         >
                                                 YES!
                                         </Button>

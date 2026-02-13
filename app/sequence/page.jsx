@@ -58,7 +58,7 @@ export default function SequencePage() {
                                 {!started && (
                                         <motion.div
                                                 exit={{ opacity: 0, transition: { duration: 1 } }}
-                                                className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+                                                className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-[5px]"
                                         >
                                                 {/* Wrap Hero in a fixed container to ensure it stays top */}
                                                 <div className="w-full h-full relative">

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import useImagePreloader from '@/hooks/useImagePreloader';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useScroll, useMotionValueEvent } from 'framer-motion';
+import { useScroll, useMotionValueEvent, useSpring } from 'framer-motion';
 
 // Generate image paths
 const frameCount = 240;
@@ -20,8 +20,15 @@ export default function ImageSequence({ start }) {
         const { images, loaded, progress } = useImagePreloader(imagePaths);
         const { scrollYProgress } = useScroll();
 
+        const smoothProgress = useSpring(scrollYProgress, {
+                mass: 0.1,
+                stiffness: 50,
+                damping: 20,
+                restDelta: 0.001
+        });
+
         // Scroll mapping
-        useMotionValueEvent(scrollYProgress, "change", (latest) => {
+        useMotionValueEvent(smoothProgress, "change", (latest) => {
                 if (!start || !loaded) return;
 
                 const frameIndex = Math.min(

@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono, Playfair_Display, Lato, Cinzel, Inter, Cormorant_Garamond, Montserrat, Oswald, Roboto, Abril_Fatface, Courier_Prime } from "next/font/google";
+import { Geist, Geist_Mono, Playfair_Display, Lato, Cinzel, Inter, Cormorant_Garamond, Montserrat, Oswald, Roboto, Abril_Fatface, Courier_Prime, Hurricane } from "next/font/google";
 import "./globals.css";
 import { MotionProvider } from "@/lib/providers/MotionProvider";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -27,6 +27,7 @@ const oswald = Oswald({ variable: "--font-oswald", subsets: ["latin"] });
 const roboto = Roboto({ variable: "--font-roboto", weight: ["400", "700"], subsets: ["latin"] });
 const abril = Abril_Fatface({ variable: "--font-abril", weight: ["400"], subsets: ["latin"] });
 const courier = Courier_Prime({ variable: "--font-courier", weight: ["400", "700"], subsets: ["latin"] });
+const hurricane = Hurricane({ variable: "--font-hurricane", weight: "400", subsets: ["latin"] });
 
 export const metadata = {
   title: "OurGreatStory - Interactive Date Invites & Digital Gifts",
@@ -37,7 +38,7 @@ export default function RootLayout({ children }) {
   return (
     <html suppressHydrationWarning lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${lato.variable} ${cinzel.variable} ${inter.variable} ${cormorant.variable} ${montserrat.variable} ${oswald.variable} ${roboto.variable} ${abril.variable} ${courier.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${lato.variable} ${cinzel.variable} ${inter.variable} ${cormorant.variable} ${montserrat.variable} ${oswald.variable} ${roboto.variable} ${abril.variable} ${courier.variable} ${hurricane.variable} antialiased`}
       >
         <Preloader />
         <ThemeProvider
