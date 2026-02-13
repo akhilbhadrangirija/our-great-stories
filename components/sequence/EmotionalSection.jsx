@@ -1,10 +1,11 @@
 'use client';
 
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useRef, useState, useEffect } from 'react';
+import { cn } from '@/lib/utils'; // Import cn
 
-const lines = [
+const fullLines = [
         "It’s been almost one year.",
         "But somehow… it feels like we were meant to meet.",
         "Sometimes I wish I had found you earlier.",
@@ -21,46 +22,54 @@ const lines = [
 
 export default function EmotionalSection() {
         const containerRef = useRef(null);
-        const { scrollYProgress } = useScroll({
-                target: containerRef,
-                offset: ["start start", "end end"]
-        });
-
         const [currentIndex, setCurrentIndex] = useState(0);
         const [showFinal, setShowFinal] = useState(false);
         const [finalClicked, setFinalClicked] = useState(false);
 
+        // Force scroll to top on mount and clean initialization
         useEffect(() => {
-                // Map scroll progress (0 to 1) to index (0 to lines.length)
-                // We reserve the last segment for the final button.
-                const unsubscribe = scrollYProgress.on("change", (latest) => {
-                        // Create segments. 
-                        // 0 - 0.9: Text lines
-                        // > 0.9: Final button
+                if (containerRef.current) {
+                        containerRef.current.scrollTop = 0;
+                }
+        }, []);
 
-                        const textProgress = latest / 0.9;
+        const handleScroll = () => {
+                if (containerRef.current) {
+                        const { scrollTop, clientHeight } = containerRef.current;
+                        if (clientHeight === 0) return;
 
-                        if (latest > 0.95) {
+                        const index = Math.round(scrollTop / clientHeight);
+
+                        if (index >= fullLines.length) {
                                 setShowFinal(true);
                         } else {
                                 setShowFinal(false);
-                                const index = Math.floor(textProgress * lines.length);
-                                setCurrentIndex(Math.min(lines.length - 1, Math.max(0, index)));
+                                setCurrentIndex(index);
                         }
-                });
-                return () => unsubscribe();
-        }, [scrollYProgress]);
+                }
+        };
 
         return (
-                <motion.div
-                        ref={containerRef}
-                        className="relative h-[600vh] w-full z-20"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 2 }}
-                >
-                        <div className="sticky top-0 left-0 h-screen w-full flex items-center justify-center">
+                <>
+                        {/* Scroll Snap Container (Invisible Driver) */}
+                        <motion.div
+                                ref={containerRef}
+                                onScroll={handleScroll}
+                                className="fixed inset-0 z-40 h-[100dvh] w-full overflow-y-auto snap-y bg-transparent pointer-events-auto"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 1 }}
+                                data-lenis-prevent="true"
+                        >
+                                {fullLines.map((_, i) => (
+                                        <div key={i} className="h-[100dvh] w-full snap-start" />
+                                ))}
+                                {/* Final Section Spacer */}
+                                <div className="h-[100dvh] w-full snap-start" />
+                        </motion.div>
 
+                        {/* Fixed Content Layer (Visible) */}
+                        <div className="fixed inset-0 z-20 flex items-center justify-center pointer-events-none">
                                 <AnimatePresence mode="wait">
                                         {!showFinal ? (
                                                 <motion.p
@@ -69,9 +78,9 @@ export default function EmotionalSection() {
                                                         animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                                                         exit={{ opacity: 0, y: -20, filter: "blur(10px)" }}
                                                         transition={{ duration: 0.5 }}
-                                                        className="text-3xl md:text-5xl font-serif text-white text-center px-6 max-w-4xl leading-relaxed drop-shadow-lg"
+                                                        className="text-3xl md:text-5xl font-serif text-white text-center px-6 max-w-4xl leading-relaxed drop-shadow-xl"
                                                 >
-                                                        {lines[currentIndex]}
+                                                        {fullLines[currentIndex]}
                                                 </motion.p>
                                         ) : (
                                                 <motion.div
@@ -79,7 +88,7 @@ export default function EmotionalSection() {
                                                         initial={{ opacity: 0, scale: 0.9 }}
                                                         animate={{ opacity: 1, scale: 1 }}
                                                         transition={{ duration: 0.8 }}
-                                                        className="text-center space-y-8"
+                                                        className={cn("text-center space-y-8 pointer-events-auto")} // Enable clicks
                                                 >
                                                         {!finalClicked ? (
                                                                 <Button
@@ -117,10 +126,10 @@ export default function EmotionalSection() {
                                                 animate={{ opacity: 1 }}
                                                 transition={{ delay: 2 }}
                                         >
-                                                Scroll down slowly
+                                                Scroll to continue
                                         </motion.div>
                                 )}
                         </div>
-                </motion.div>
+                </>
         );
 }
