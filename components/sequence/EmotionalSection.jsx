@@ -92,13 +92,13 @@ export default function EmotionalSection() {
                                                                                 Today we celebrate love.
                                                                         </motion.p>
                                                                         <motion.p
-                                                                                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.5 }}
+                                                                                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.5, duration: 0.8, ease: "easeInOut" }}
                                                                                 className="text-3xl md:text-5xl font-[family-name:var(--font-hurricane)] leading-relaxed"
                                                                         >
                                                                                 One day we’ll celebrate everything we built together.
                                                                         </motion.p>
                                                                         <motion.p
-                                                                                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 3.0 }}
+                                                                                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 3.0, duration: 0.8, ease: "easeInOut" }}
                                                                                 className="text-3xl md:text-5xl font-[family-name:var(--font-hurricane)] leading-relaxed"
                                                                         >
                                                                                 And all the Valentine’s Days still waiting for us.
@@ -107,12 +107,40 @@ export default function EmotionalSection() {
                                                                         <motion.div
                                                                                 initial={{ opacity: 0, scale: 0.8 }}
                                                                                 animate={{ opacity: 1, scale: 1 }}
-                                                                                transition={{ delay: 4.5, duration: 0.8 }}
-                                                                                className="pt-8"
+                                                                                transition={{ delay: 4.5, duration: 0.8, ease: "easeInOut" }}
+                                                                                className="pt-8 relative"
                                                                         >
+                                                                                {/* Floating Hearts */}
+                                                                                <div className="absolute inset-0 pointer-events-none -z-10 overflow-visible">
+                                                                                        {Array.from({ length: 15 }).map((_, i) => (
+                                                                                                <motion.div
+                                                                                                        key={i}
+                                                                                                        initial={{
+                                                                                                                opacity: 0,
+                                                                                                                y: 0,
+                                                                                                                x: (Math.random() - 0.5) * 150
+                                                                                                        }}
+                                                                                                        animate={{
+                                                                                                                opacity: [0, 1, 0],
+                                                                                                                y: -100 - Math.random() * 100,
+                                                                                                                x: (Math.random() - 0.5) * 200
+                                                                                                        }}
+                                                                                                        transition={{
+                                                                                                                duration: 2 + Math.random() * 2,
+                                                                                                                repeat: Infinity,
+                                                                                                                delay: Math.random() * 2,
+                                                                                                                ease: "easeOut"
+                                                                                                        }}
+                                                                                                        className="absolute bottom-1/2 left-1/2 text-2xl text-red-500/60"
+                                                                                                >
+                                                                                                        ❤️
+                                                                                                </motion.div>
+                                                                                        ))}
+                                                                                </div>
+
                                                                                 <Button
                                                                                         onClick={() => setFinalClicked(true)}
-                                                                                        className="bg-white/10 hover:bg-white/20 text-white border border-white/30 text-xl md:text-2xl px-10 py-6 rounded-full shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_50px_rgba(255,255,255,0.4)] backdrop-blur-sm transition-all duration-500 hover:scale-105"
+                                                                                        className="bg-red-600/20 hover:bg-red-600/30 text-white border border-red-500/50 text-2xl md:text-4xl font-[family-name:var(--font-hurricane)] px-10 py-6 rounded-full shadow-[0_0_40px_rgba(220,38,38,0.4)] hover:shadow-[0_0_60px_rgba(220,38,38,0.6)] backdrop-blur-sm transition-all duration-500 hover:scale-105"
                                                                                 >
                                                                                         Always.
                                                                                 </Button>
